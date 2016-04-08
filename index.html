@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<script type="text/javascript" src="phaser.js"></script>
+	<script type="text/javascript"src="script.js"></script>
+	<script type="text/javascript" src="helper.js"></script>
+	<script type="text/javascript" src="charcter.js"></script>
+</head>
+<body>
+<center>
+	<div  id="game"></div>
+</center>
+<script type="text/javascript">
+	var World;
+	var dude;
+
+	var game=new Phaser.Game(800,600,Phaser.AUTO,'game',{update:onUpdate,create:onCreate,preload:onPreload});
+	function onCreate(){
+		 World=new TWorld(game,4,null);
+		 World.loadImage();
+		dude=game.add.sprite(225,0,'dude');
+		game.physics.arcade.enable(dude, Phaser.Physics.ARCADE);
+		
+		var PhysicalSystem=new PhysicsWorld(game, World, dude);
+
+		game.plugins.add(PhysicalSystem);
+		
+		//console.log(World.data);
+		dude.body.colliderWorldBounds=true;
+		dude.animations.add('left',[0,1,2,3],10,true);
+		dude.animations.add('right',[5,6,7,8],10,true);
+		this.cursor=game.input.keyboard.createCursorKeys();
+		
+	}
+	function onPreload(){
+
+		game.load.image('land','assets/platform.png');
+		game.load.spritesheet('dude','assets/dude.png',32,48)
+		
+		console.log("bo");
+		
+	}
+
+	function onUpdate(){
+		if(this.cursor.down.isDown){
+			var tileX = World.TileForWorld(dude.body.x + (dude.width/2 ))
+    tileX = Phaser.Math.clamp(tileX, 0, World.width-1)
+    var tileY = World.TileForWorld(dude.body.y + dude.height+1)
+    tileY = Phaser.Math.clamp(tileY, 0, World.height-1)
+
+    World.destoryCircle(10, tileX, tileY)
+    console.log(tileX+"");
+		}
+
+
+		if(this.cursor.left.isDown){
+			dude.body.velocity.x=-50;
+			dude.animations.play('left');
+
+		}
+		if(this.cursor.right.isDown){
+			dude.body.velocity.x=50;
+			dude.animations.play('right');
+		}
+		
+
+	}
+
+
+</script>
+
+</body>
+</html>
