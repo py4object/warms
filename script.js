@@ -5,10 +5,13 @@ stoneColor1 = '#a0a0a0'
 
 
 function TWorld(game,tileSize){
+	this.instance=this;
 	this.game=game;
 	this.tileSize=tileSize;
 	this.data=null;
 	this.d=null;
+	this.fireGroup=game.add.group();
+	
 	
 }
 TWorld.prototype.getData=function(){
@@ -118,6 +121,7 @@ TWorld.prototype.highestTile=function(x,y){
 
 
 
+
 TWorld.prototype.TileForWorld=function(world){
 	var result=world/this.tileSize;
 
@@ -125,7 +129,7 @@ TWorld.prototype.TileForWorld=function(world){
 }
 
 TWorld.prototype.destoryCircle=function(r,tileX,tileY){
-
+	
 	for(var x=-r;x<r;x++){
 		for(var y=-r;y<r;y++){
 			var d=x*x +y*y;
@@ -140,23 +144,74 @@ TWorld.prototype.destoryCircle=function(r,tileX,tileY){
 		}
 	}
 	this.render();
+} 
+TWorld.prototype.destroyOneTile=function(tileX,tileY){
+
+	this.futureData[tileX][tileY]=clearColor;
+	this.land.dirty=true;
+	this.render();
+
 }
 
+TWorld.prototype.destroySquare=function(tileX,tileY,width,height){
+	for (var i = tileY; i < tileY+height; i++) {
+		for (var j =tileX;j<tileX+width;j++){
+			this.futureData[j][i]=clearColor;
+			this.land.dirty=true;
+		}		    
+		
+	}
+	this.render();
+}
+TWorld.prototype.AddFire=function(x,y,key,time){
+	this.fireGroup=this.fireGroup||game.add.group();
+	var fire=new Fire(x, y, key, this.game,time);
+	this.fireGroup.add(fire);
+	return fire;
+
+}
 
 function PhysicsWorld(game,TWorld,charcters){
 	this.game=game;
 	this.World=TWorld;
+	
 	this.charcters=charcters;
+	
+	console.log('constructor');
 	//console.log(charcter);
 }
 PhysicsWorld.prototype=Phaser.Plugin
 
 PhysicsWorld.prototype.update=function(){
 
+	var f=this.checkOverlap;
 	this.charcters.forEach(this.checkCharcterCollison);
+	this.charcters.forEach(function (charcter) {
+		// this.checkCharcterCollison(charcter);
+
+		this.World.fireGroup.forEach(function(fire){
+			if(f(fire,charcter)){
+				console.log("it burns");
+			}
+		})
+		// this.checkCharcterCollison(charcter);
+
+
+		
+	});
+	this.World.fireGroup.forEach(this.checkFireCollison);
+
 
 }
 
+PhysicsWorld.prototype.checkOverlap=function(spriteA, spriteB) {
+
+    var boundsA = spriteA.getBounds();
+    var boundsB = spriteB.getBounds();
+
+    return Phaser.Rectangle.intersects(boundsA, boundsB);
+
+}
 PhysicsWorld.prototype.postUpdate=function(){
 
 }
@@ -172,20 +227,7 @@ PhysicsWorld.prototype.checkCharcterCollison=function(charcter){
 
     tileHexColor = this.World.data[tileX][tileY]
 
-		//console.log(tileX+" "+tileY)
-	// if(!this.World.isWalkable(this.World.data[tileX+1][tileY-1])){
-	// 	charcter.body.velocity=0;
-	// 	//console.log("1");
-
-	// }
-	//  if(!this.World.isWalkable(this.World.data[tileX-1][tileY-1])){
-	// 	charcter.body.velocity=0;
-	// 	//console.log("2");
-	// }
-	// 
-	// 
-	// 
-	// 
+	
 	if(!this.World.isWalkable(this.World.data[tileX+1][tileY-1])||
 		!this.World.isWalkable(this.World.data[tileX+2][tileY-1])||
 		!this.World.isWalkable(this.World.data[tileX+3][tileY-1])){
@@ -193,6 +235,7 @@ PhysicsWorld.prototype.checkCharcterCollison=function(charcter){
 				charcter.body.velocity.x=0;
 			//console.log('cant go right');
 			}
+	
 	}
 	if(!this.World.isWalkable(this.World.data[tileX-1][tileY-1])||
 		!this.World.isWalkable(this.World.data[tileX-2][tileY-1])||
@@ -236,6 +279,59 @@ PhysicsWorld.prototype.checkCharcterCollison=function(charcter){
 		}
 
 	}
+
+
+}
+
+PhysicsWorld.prototype.checkFireCollison=function(fire){
+
+	var tileX = this.World.TileForWorld(fire.x +(fire.width/2))
+    tileX = Phaser.Math.clamp(tileX, 0, this.World.width-1)
+    var tileY = this.World.TileForWorld(fire.body.y + fire.height)
+    var tileTopY=this.World.TileForWorld(fire.body.y);
+    tileY = Phaser.Math.clamp(tileY, 0, this.World.height-1);
+    tileTopY=Phaser.Math.clamp(tileTopY, 0, this.World.height-1);
+    tileHexColor = this.World.data[tileX][tileY]
+
+    if(this.World.isWalkable(tileHexColor)){
+    	fire.body.acceleration.y=100;
+    }
+    else {
+		fire.body.acceleration.y=0;
+		fire.body.velocity.y=0;
+		fire.body.velocity.x=0;
+		
+		var highestTire=this.World.highestNonFreeTile(tileX, tileY);
+		if( highestTire>tileY-5){
+			fire.body.y=highestTire*4-fire.height+1;
+		}else{
+			fire.body.y=tileY*4-fire.height+1;
+		}
+		tileX=this.World.TileForWorld(fire.x);
+		thileY=this.World.TileForWorld(fire.y);
+
+		
+		this.timers=this.timers||[];
+		this.TimerIndex=this.TimerIndex||0;
+		 this.timers[this.TimerIndex]= game.time.events.loop(Phaser.Timer.QUARTER, burn, this,tileX,tileY,this,fire,this.TimerIndex++);
+
+	}
+
+}
+
+function burn(x,y,pw,fire,TimerIndex){
+
+	
+	
+	if(fire.time<=fire.numT){
+		pw.game.time.events.remove(pw.timers[TimerIndex]);
+		pw.World.fireGroup.removeChild(fire);
+		fire.destroy();
+		
+
+	}
+	pw.World.destroySquare(x-2,y, 5,4);
+	fire.numT++;
 
 
 }

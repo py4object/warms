@@ -6,6 +6,7 @@
 	<script type="text/javascript"src="script.js"></script>
 	<script type="text/javascript" src="helper.js"></script>
 	<script type="text/javascript" src="charcter.js"></script>
+	<script type="text/javascript" src="fire.js"></script>
 </head>
 <body >
 <center>
@@ -21,20 +22,24 @@
 		
 
 		dude1=game.add.sprite(0,0,'background');
-		
+
+		 var charcterGroup=game.add.group();
+		 dude1=charcterGroup.create(225,0,'dude');
 		 World=new TWorld(game,4,null);
 
+
 		 World.loadImage();
-		 var charcterGroup=game.add.group();
 		
 		
-		dude1=charcterGroup.create(225,0,'dude');
 		game.physics.arcade.enable(dude1, Phaser.Physics.ARCADE);
 
 		// dude12=charcterGroup.create(225,0,'dude1');
 		// game.physics.arcade.enable(dude12, Phaser.Physics.ARCADE);
 
 		dude2=charcterGroup.create(225,0,'dude');
+		var f=  World.AddFire(255, 255, 'fire',5);
+		var space_key = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+	
 		game.physics.arcade.enable(dude2, Phaser.Physics.ARCADE);
 		
 		var PhysicalSystem=new PhysicsWorld(game, World, charcterGroup);//
@@ -48,15 +53,19 @@
 		
 
 		this.cursor=game.input.keyboard.createCursorKeys();
-		
+		space_key.onDown.add(function(){
+			var f=  World.AddFire(dude1.x, dude1.y, 'fire',200);
+			f.body.velocity.x=100;
+		},this);
 	}
 	function onPreload(){
 
 		game.load.image('land','assets/platform3.png');
 		game.load.image('background','background.jpg');
 		game.load.spritesheet('dude','assets/dude.png',32,48)
+		game.load.spritesheet('fire','assets/Flame.png',16,16);
 		
-		console.log("bo");
+		
 		
 	}
 
@@ -68,7 +77,7 @@
     tileY = Phaser.Math.clamp(tileY, 0, World.height-1)
 
     World.destoryCircle(10, tileX, tileY)
-    console.log(tileX+"");
+    
 		}
 
 		if(this.cursor.up.isDown){
