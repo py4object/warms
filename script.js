@@ -215,6 +215,15 @@ PhysicsWorld.prototype.checkOverlap=function(spriteA, spriteB) {
 PhysicsWorld.prototype.postUpdate=function(){
 
 }
+TWorld.prototype.checkVerticalLine=function(x,y,length){
+	for (var i =0;i<length;i++){
+		if(!this.isWalkable(this.data[x][y-i])){
+			return false;
+		}
+	}
+	console.log("trueee");
+	return true;
+}
 
 PhysicsWorld.prototype.checkCharcterCollison=function(charcter){
 
@@ -224,19 +233,53 @@ PhysicsWorld.prototype.checkCharcterCollison=function(charcter){
     var tileTopY=this.World.TileForWorld(charcter.body.y);
     tileY = Phaser.Math.clamp(tileY, 0, this.World.height-1);
     tileTopY=Phaser.Math.clamp(tileTopY, 0, this.World.height-1);
-
+    tileXright=this.World.TileForWorld(charcter.x +(charcter.width))
+    tileXright=Phaser.Math.clamp(tileX, 0, this.World.width-1)
     tileHexColor = this.World.data[tileX][tileY]
 
 	
-	if(!this.World.isWalkable(this.World.data[tileX+1][tileY-1])||
-		!this.World.isWalkable(this.World.data[tileX+2][tileY-1])||
-		!this.World.isWalkable(this.World.data[tileX+3][tileY-1])){
-			if(charcter.body.velocity.x>0){
-				charcter.body.velocity.x=0;
-			//console.log('cant go right');
-			}
+	// if(!this.World.isWalkable(this.World.data[tileX+1][tileY-1])||
+	// 	!this.World.isWalkable(this.World.data[tileX+2][tileY-1])||
+	// 	!this.World.isWalkable(this.World.data[tileX+3][tileY-1])){
+	// 		if(charcter.body.velocity.x>0){
+	// 			charcter.body.velocity.x=0;
+	// 		//console.log('cant go right');
+	// 		}
 	
+	// }
+	// 
+	var flag=0;
+
+	// console.log(charcter.height);
+	if(charcter.body.velocity.x>0){
+		for(var i=2;i<charcter.height/4;i++){
+			for(var j=0;j<3;j++)
+				if(!this.World.isWalkable(this.World.data[tileX+j][tileY-i])){
+					flag=1;
+					charcter.body.velocity.x=0;
+				}else{
+					flag=0
+				}
+
+					
+			}
+		
+
+	if(flag==1){
+	
+		for(var i=0;i<10;i++){
+			if(this.World.checkVerticalLine(tileXright+1,tileY+i,charcter.height/4)){
+					charcter.body.y=tileY*4-charcter.height+1;
+					charcter.x;
+					flag=0
+					break
+
+			}
+		}
+
 	}
+	
+}
 	if(!this.World.isWalkable(this.World.data[tileX-1][tileY-1])||
 		!this.World.isWalkable(this.World.data[tileX-2][tileY-1])||
 		!this.World.isWalkable(this.World.data[tileX-3][tileY-1])){
