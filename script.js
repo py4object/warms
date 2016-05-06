@@ -18,42 +18,62 @@ TWorld.prototype.getData=function(){
 	return this.data;
 }
 TWorld.prototype.loadImage=function(){
-	this.land = this.game.add.bitmapData(800, 600);
-	this.game.add.sprite(0,0,this.land);
-    //this.land.draw('land');
-    //this.land.update();
-    //this.land.addToWorld();
-    
-	this.img = game.cache.getImage('land');
-    var canvas = document.createElement('canvas');
-    canvas.getContext('2d').drawImage(this.img, 0, 0, this.img.width, this.img.height);
-    var pixelData = canvas.getContext('2d').getImageData(0, 0, this.img.width, this.img.height).data;
-   // document.body.appendChild(canvas);
-   // Phaser.Canvas.addToDOM(canvas, parent, overflowHidden)
-    var sprite = game.add.sprite(0, 0, this.land)
-	var pixelData=canvas.getContext('2d').getImageData(0,0,this.img.width,this.img.height).data;
-	this.data=new Array(this.img.width);
-	this.width=800/this.tileSize;
-	this.height=600/this.tileSize;
 	
 
 	
-	this.futureData=new Array(this.img.height);
+	this.init();
+	var pixelData=this.canvas.getContext('2d').getImageData(0,0,this.img.width,this.img.height).data;
 	for (var x = 0; x< this.img.width; x++) {
-		this.data[x]=new Array(this.img.width);
-		this.futureData[x]=new Array(this.img.width);
 		for(var y =0;y<this.img.height;y++){
 			var red = pixelData[((this.img.width * y) + x) * 4]
 			var  green = pixelData[((this.img.width * y) + x) * 4 + 1]
 			var  blue = pixelData[((this.img.width * y) + x) * 4 + 2]
 			var alpha = pixelData[((this.img.width * y) + x) * 4 + 3]
 			var hex = Helper.rgbToHex(red, green, blue);
+			if(alpha==0)
+				hex=clearColor
 			this.data[x][y]=hex;
 			this.futureData[x][y]=hex;
 			this.land.ctx.fillStyle = hex
+			if (hex!=clearColor)
    			this.land.ctx.fillRect(4 * x, 4 * y, 4, 4)
    			this.land.dirty=true;
    			////console.log(hex);
+		}	
+
+	}
+	
+	//var PhysicalSystem=new PhysicsWorld(game, this, this.dude);
+//		game.plugins.add(PhysicalSystem);
+
+
+}
+TWorld.prototype.init=function(){
+
+	this.land = this.game.add.bitmapData(800, 600);
+	this.game.add.sprite(0,0,this.land);
+    
+	this.img = game.cache.getImage('land');
+    this.canvas = document.createElement('canvas');
+    this.canvas.getContext('2d').drawImage(this.img, 0, 0, this.img.width, this.img.height);
+    var pixelData = this.canvas.getContext('2d').getImageData(0, 0, this.img.width, this.img.height).data;
+   // document.body.appendChild(canvas);
+   // Phaser.Canvas.addToDOM(canvas, parent, overflowHidden)
+    var sprite = game.add.sprite(0, 0, this.land)
+	
+	this.data=new Array(this.width);
+	this.width=this.game.width/this.tileSize;
+	this.height=this.game.width/this.tileSize;
+	
+	this.futureData=new Array(this.game.height);
+	for (var x = 0; x< this.game.width; x++) {
+		this.data[x]=new Array(this.game.width);
+		this.futureData[x]=new Array(this.game.width);
+		for(var y =0;y<this.height;y++){
+			this.data[x][y]=clearColor;
+			this.futureData[x][y]=clearColor;
+			
+	
 		}	
 
 	}
