@@ -72,6 +72,7 @@ TWorld.prototype.init=function(){
 		for(var y =0;y<this.height;y++){
 			this.data[x][y]=clearColor;
 			this.futureData[x][y]=clearColor;
+
 			
 	
 		}	
@@ -84,6 +85,15 @@ TWorld.prototype.init=function(){
 
 }
 TWorld.prototype.x=10;
+
+
+TWorld.prototype.colorAPixle=function(x,y,r,g,b){
+	// this.data[x][y]=Helper.rgbToHex(red, green, blue);
+	this.land.ctx.fillStyle = Helper.rgbToHex(r, g, b)
+	this.land.ctx.fillRect(4 * x, 4 * y, 4, 4)
+	this.land.dirty=true
+
+}
 TWorld.prototype.isWalkable=function(hexColor){
 	//console.log(hexColor +" "+ clearColor);
 	return hexColor  ==clearColor;
@@ -236,13 +246,16 @@ PhysicsWorld.prototype.postUpdate=function(){
 
 }
 TWorld.prototype.checkVerticalLine=function(x,y,length){
-	for (var i =0;i<length;i++){
+	for (var i =1;i<length;i++){
 		if(!this.isWalkable(this.data[x][y-i])){
+			World.colorAPixle(x, y-i, 255, 0, 0)
 			return false;
 		}
+		World.colorAPixle(x, y, 0, 0, 255)
 	}
 	console.log("trueee");
-	return true;
+	World.colorAPixle(x, y, 255, 255, 0)
+	return !this.isWalkable(this.data[x][y])
 }
 
 PhysicsWorld.prototype.checkCharcterCollison=function(charcter){
@@ -253,8 +266,8 @@ PhysicsWorld.prototype.checkCharcterCollison=function(charcter){
     var tileTopY=this.World.TileForWorld(charcter.body.y);
     tileY = Phaser.Math.clamp(tileY, 0, this.World.height-1);
     tileTopY=Phaser.Math.clamp(tileTopY, 0, this.World.height-1);
-    tileXright=this.World.TileForWorld(charcter.x +(charcter.width))
-    tileXright=Phaser.Math.clamp(tileX, 0, this.World.width-1)
+    tileXright=this.World.TileForWorld(charcter.x +(charcter.width/4))
+    tileXright=Phaser.Math.clamp(tileXright, 0, this.World.width-1)
     tileHexColor = this.World.data[tileX][tileY]
 
 	
@@ -272,42 +285,40 @@ PhysicsWorld.prototype.checkCharcterCollison=function(charcter){
 
 	// console.log(charcter.height);
 	if(charcter.body.velocity.x>0){
-		for(var i=2;i<charcter.height/4;i++){
+		for(var i=1;i<charcter.height/4;i++){
 			for(var j=0;j<3;j++)
 				if(!this.World.isWalkable(this.World.data[tileX+j][tileY-i])){
-					flag=1;
+				
 					charcter.body.velocity.x=0;
-				}else{
-					flag=0
+					// this.World.colorAPixle(tileX+j, tileY-i, 255, 0, 0)
+					if(this.World.checkVerticalLine(tileX+2, tileY-i, charcter.height/4))
+						charcter.body.y=charcter.body.y-4
+					console.log("boo");
+					break
 				}
 
 					
 			}
-		
-
-	if(flag==1){
-	
-		for(var i=0;i<10;i++){
-			if(this.World.checkVerticalLine(tileXright+1,tileY+i,charcter.height/4)){
-					charcter.body.y=tileY*4-charcter.height+1;
-					charcter.x;
-					flag=0
-					break
-
-			}
 		}
 
-	}
 	
-}
-	if(!this.World.isWalkable(this.World.data[tileX-1][tileY-1])||
-		!this.World.isWalkable(this.World.data[tileX-2][tileY-1])||
-		!this.World.isWalkable(this.World.data[tileX-3][tileY-1])){
-			if(charcter.body.velocity.x<0){
-				charcter.body.velocity.x=0;
-			//console.log('cant go left');
+
+	if(charcter.body.velocity.x<0){
+		for(var i=1;i<charcter.height/4;i++){
+			for(var j=0;j<3;j++)
+				if(!this.World.isWalkable(this.World.data[tileX-j][tileY-i])){
+				
+					charcter.body.velocity.x=0;
+					// this.World.colorAPixle(tileX-j, tileY-i, 255, 0, 0)
+					if(this.World.checkVerticalLine(tileX-2, tileY-i, charcter.height/4))
+						charcter.body.y=charcter.body.y-4
+					console.log("boo");
+					break
+				}
+
+					
 			}
-	}
+		}
 
 	if(charcter.body.velocity.y<0){
 		//console.log("1");
@@ -316,6 +327,7 @@ PhysicsWorld.prototype.checkCharcterCollison=function(charcter){
 			var highestTire=this.World.highestTile(tileX, tileTopY);
 		//	console.log("2");
 			charcter.body.y=highestTire*4+1;
+
 		}
 		
 
@@ -328,12 +340,12 @@ PhysicsWorld.prototype.checkCharcterCollison=function(charcter){
 	
 }	
 
-	else if(charcter.body.velocity.y>=0){
+	else if(charcter.body.velocity.y>0){
 		charcter.body.acceleration.y=0;
 		charcter.body.velocity.y=0;
 		//charcter.body.velocity.x=0;
 		//
-		//
+		
 		var highestTire=this.World.highestNonFreeTile(tileX, tileY);
 		if( highestTire>tileY-5){
 			charcter.body.y=highestTire*4-charcter.height+1;
