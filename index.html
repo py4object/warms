@@ -7,6 +7,7 @@
 	<script type="text/javascript" src="helper.js"></script>
 	<script type="text/javascript" src="charcter.js"></script>
 	<script type="text/javascript" src="fire.js"></script>
+	<script type="text/javascript" src="bazoka.js"></script>
 </head>
 <body >
 <center>
@@ -39,7 +40,7 @@
 		dude2=charcterGroup.create(225,0,'dude');
 		var f=  World.AddFire(255, 255, 'fire',5);
 		var space_key = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-	
+		var z= this.game.input.keyboard.addKey(Phaser.Keyboard.Z);
 		game.physics.arcade.enable(dude2, Phaser.Physics.ARCADE);
 		
 		var PhysicalSystem=new PhysicsWorld(game, World, charcterGroup);//
@@ -57,13 +58,18 @@
 			var f=  World.AddFire(dude1.x, dude1.y, 'fire',200);
 			f.body.velocity.x=100;
 		},this);
+		z.onDown.add(function(){
+			var b=World.AddBazoka(dude1.x, dude1.y, 'bazoka')
+			b.body.velocity.x=100
+		})
 	}
 	function onPreload(){
 
-		game.load.image('land','assets/level1.png');
+		game.load.image('land','assets/level2.png');
 		game.load.image('background','/assets/background.jpg');
 		game.load.spritesheet('dude','assets/dude.png',32,48)
 		game.load.spritesheet('fire','assets/Flame.png',16,16);
+		game.load.image('bazoka','assets/BazookaShell.png')
 		
 		
 		

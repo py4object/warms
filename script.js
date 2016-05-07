@@ -11,6 +11,7 @@ function TWorld(game,tileSize){
 	this.data=null;
 	this.d=null;
 	this.fireGroup=game.add.group();
+	this.BazokaGroup=game.add.group();
 	
 	
 }
@@ -36,7 +37,7 @@ TWorld.prototype.loadImage=function(){
 			this.futureData[x][y]=hex;
 			this.land.ctx.fillStyle = hex
 			if (hex!=clearColor)
-   			this.land.ctx.fillRect(4 * x, 4 * y, 4, 4)
+   				this.land.ctx.fillRect(4 * x, 4 * y, 4, 4)
    			this.land.dirty=true;
    			////console.log(hex);
 		}	
@@ -198,6 +199,14 @@ TWorld.prototype.AddFire=function(x,y,key,time){
 	var fire=new Fire(x, y, key, this.game,time);
 	this.fireGroup.add(fire);
 	return fire;
+
+}
+
+TWorld.prototype.AddBazoka=function(x,y,key){
+	
+	var bazoka=new Bazoka(x, y, key, this.game);
+	this.BazokaGroup.add(bazoka);
+	return bazoka;
 
 }
 
