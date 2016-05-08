@@ -59,8 +59,20 @@
 			f.body.velocity.x=100;
 		},this);
 		z.onDown.add(function(){
-			var b=World.AddBazoka(dude1.x, dude1.y, 'bazoka')
-			b.body.velocity.x=100
+			var b=World.AddBazoka(dude1.x, dude1.y, 'bazoka',2)
+			b.body.velocity.y=-100
+			b.angle-= 90;
+			b=World.AddBazoka(dude1.x, dude1.y, 'bazoka',20)
+			b.body.velocity.y=100
+			b.angle-= -90;
+			b=World.AddBazoka(dude1.x, dude1.y, 'bazoka',20)
+			b.body.velocity.x=+100
+			b.angle=0;
+			b=World.AddBazoka(dude1.x, dude1.y, 'bazoka',20)
+			b.body.velocity.x=-100
+			b.angle=90;
+
+
 		})
 	}
 	function onPreload(){

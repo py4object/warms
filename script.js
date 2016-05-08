@@ -62,7 +62,7 @@ TWorld.prototype.init=function(){
    // Phaser.Canvas.addToDOM(canvas, parent, overflowHidden)
     var sprite = game.add.sprite(0, 0, this.land)
 	
-	this.data=new Array(this.width);
+	this.data=new Array(this.game.height);
 	this.width=this.game.width/this.tileSize;
 	this.height=this.game.width/this.tileSize;
 	
@@ -202,9 +202,9 @@ TWorld.prototype.AddFire=function(x,y,key,time){
 
 }
 
-TWorld.prototype.AddBazoka=function(x,y,key){
+TWorld.prototype.AddBazoka=function(x,y,key,r){
 	
-	var bazoka=new Bazoka(x, y, key, this.game);
+	var bazoka=new Bazoka(x, y, key, this.game,r);
 	this.BazokaGroup.add(bazoka);
 	return bazoka;
 
@@ -239,7 +239,7 @@ PhysicsWorld.prototype.update=function(){
 		
 	});
 	this.World.fireGroup.forEach(this.checkFireCollison);
-
+	this.World.BazokaGroup.forEach(this.BazokaVsPlatForm);
 
 }
 
@@ -254,6 +254,8 @@ PhysicsWorld.prototype.checkOverlap=function(spriteA, spriteB) {
 PhysicsWorld.prototype.postUpdate=function(){
 
 }
+
+
 TWorld.prototype.checkVerticalLine=function(x,y,length){
 	for (var i =1;i<length;i++){
 		if(!this.isWalkable(this.data[x][y-i])){
@@ -295,13 +297,15 @@ PhysicsWorld.prototype.checkCharcterCollison=function(charcter){
 	// console.log(charcter.height);
 	if(charcter.body.velocity.x>0){
 		for(var i=1;i<charcter.height/4;i++){
-			for(var j=0;j<3;j++)
+			for(var j=1;j<3;j++)
 				if(!this.World.isWalkable(this.World.data[tileX+j][tileY-i])){
 				
 					charcter.body.velocity.x=0;
 					// this.World.colorAPixle(tileX+j, tileY-i, 255, 0, 0)
-					if(this.World.checkVerticalLine(tileX+2, tileY-i, charcter.height/4))
-						charcter.body.y=charcter.body.y-4
+					if(this.World.checkVerticalLine(tileX+2, tileY-i, charcter.height/4)){
+						charcter.body.y=charcter.body.y-6
+						charcter.body.x=charcter.body.x+1
+					}
 					console.log("boo");
 					break
 				}
@@ -314,13 +318,16 @@ PhysicsWorld.prototype.checkCharcterCollison=function(charcter){
 
 	if(charcter.body.velocity.x<0){
 		for(var i=1;i<charcter.height/4;i++){
-			for(var j=0;j<3;j++)
+			for(var j=1;j<3;j++)
 				if(!this.World.isWalkable(this.World.data[tileX-j][tileY-i])){
 				
 					charcter.body.velocity.x=0;
 					// this.World.colorAPixle(tileX-j, tileY-i, 255, 0, 0)
-					if(this.World.checkVerticalLine(tileX-2, tileY-i, charcter.height/4))
-						charcter.body.y=charcter.body.y-4
+					if(this.World.checkVerticalLine(tileX-2, tileY-i, charcter.height/4)){
+						charcter.body.y=charcter.body.y-6
+					
+						charcter.body.x=charcter.body.x+-1
+				}
 					console.log("boo");
 					break
 				}
@@ -352,8 +359,8 @@ PhysicsWorld.prototype.checkCharcterCollison=function(charcter){
 	else if(charcter.body.velocity.y>0){
 		charcter.body.acceleration.y=0;
 		charcter.body.velocity.y=0;
-		//charcter.body.velocity.x=0;
-		//
+		
+		
 		
 		var highestTire=this.World.highestNonFreeTile(tileX, tileY);
 		if( highestTire>tileY-5){
@@ -418,4 +425,62 @@ function burn(x,y,pw,fire,TimerIndex){
 	fire.numT++;
 
 
+}
+PhysicsWorld.prototype.BazokaVsPlatForm=function(bazoka){
+tileX=this.World.TileForWorld(bazoka.body.x)
+tileX1=this.World.TileForWorld(bazoka.body.x+bazoka.width)
+tileY=this.World.TileForWorld(bazoka.body.y)+1
+tileY1=this.World.TileForWorld(bazoka.body.y+bazoka.height)-1
+
+if(bazoka.body.x<=0||bazoka.body.x>=this.game.width||bazoka.body.y<=0||bazoka.body.y>=this.game.height){
+	
+			this.World.BazokaGroup.removeChild(bazoka)
+			bazoka.destroy()
+			console.log('removed')
+			return
+
+}
+
+	try{
+		for(var i=tileX;i<=tileX1;i++){
+			if(!this.World.isWalkable(this.World.data[i][tileY])){
+				this.World.destoryCircle(bazoka.radious, i, tileY)
+				this.World.BazokaGroup.removeChild(bazoka)
+				bazoka.destroy()
+				return
+			}
+		}
+
+		for(var i=tileX;i<=tileX1;i++){
+
+			if(!this.World.isWalkable(this.World.data[i][tileY1])){
+				this.World.destoryCircle(bazoka.radious, i, tileY1)
+				this.World.BazokaGroup.removeChild(bazoka)
+				bazoka.destroy()
+				return
+			}
+		}
+
+		for(var i=tileY;i<=tileY1;i++){
+			if(!this.World.isWalkable(this.World.data[tileX][i])){
+				this.World.destoryCircle(bazoka.radious, tileX, i)
+				this.World.BazokaGroup.removeChild(bazoka)
+				bazoka.destroy()
+				return
+			}
+		}
+
+		for(var i=tileY;i<=tileY1;i++){
+				if(!this.World.isWalkable(this.World.data[tileX1][i])){
+					this.World.destoryCircle(bazoka.radious, tileX1, i)
+					this.World.BazokaGroup.removeChild(bazoka)
+					bazoka.destroy()
+					return
+				}
+		}
+}catch(e){
+
+}
+
+	
 }
