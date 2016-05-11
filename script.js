@@ -20,7 +20,7 @@ TWorld.prototype.getData=function(){
 }
 TWorld.prototype.loadImage=function(){
 	
-
+	console.log(this.tileSize);
 	
 	this.init();
 	var pixelData=this.canvas.getContext('2d').getImageData(0,0,this.img.width,this.img.height).data;
@@ -37,7 +37,7 @@ TWorld.prototype.loadImage=function(){
 			this.futureData[x][y]=hex;
 			this.land.ctx.fillStyle = hex
 			if (hex!=clearColor)
-   				this.land.ctx.fillRect(4 * x, 4 * y, 4, 4)
+   				this.land.ctx.fillRect(this.tileSize * x, this.tileSize * y, this.tileSize, this.tileSize)
    			this.land.dirty=true;
    			////console.log(hex);
 		}	
@@ -51,7 +51,7 @@ TWorld.prototype.loadImage=function(){
 }
 TWorld.prototype.init=function(){
 
-	this.land = this.game.add.bitmapData(800, 600);
+	this.land = this.game.add.bitmapData(this.game.width, this.game.height);
 	this.game.add.sprite(0,0,this.land);
     
 	this.img = game.cache.getImage('land');
@@ -91,7 +91,7 @@ TWorld.prototype.x=10;
 TWorld.prototype.colorAPixle=function(x,y,r,g,b){
 	// this.data[x][y]=Helper.rgbToHex(red, green, blue);
 	this.land.ctx.fillStyle = Helper.rgbToHex(r, g, b)
-	this.land.ctx.fillRect(4 * x, 4 * y, 4, 4)
+	this.land.ctx.fillRect(this.tileSize * x, this.tileSize * y, this.tileSize, this.tileSize)
 	this.land.dirty=true
 
 }
@@ -120,7 +120,7 @@ TWorld.prototype.drawTile=function(color,x,y){
 
 	this.land.ctx.fillStyle = color
 
-   	this.land.ctx.clearRect(4 * x, 4 * y, 4, 4)
+   	this.land.ctx.clearRect(this.tileSize * x, this.tileSize * y, this.tileSize, this.tileSize)
 
 }
 
@@ -359,14 +359,15 @@ PhysicsWorld.prototype.checkCharcterCollison=function(charcter){
 	else if(charcter.body.velocity.y>0){
 		charcter.body.acceleration.y=0;
 		charcter.body.velocity.y=0;
-		
+		console.log(this.tileSize);
 		
 		
 		var highestTire=this.World.highestNonFreeTile(tileX, tileY);
 		if( highestTire>tileY-5){
-			charcter.body.y=highestTire*4-charcter.height+1;
+			charcter.body.y=highestTire*this.World.tileSize-charcter.height+1;
+			console.log("bug");
 		}else{
-			charcter.body.y=tileY*4-charcter.height+1;
+			charcter.body.y=tileY*this.World.tileSize-charcter.height+1;
 		}
 
 	}
@@ -394,9 +395,9 @@ PhysicsWorld.prototype.checkFireCollison=function(fire){
 		
 		var highestTire=this.World.highestNonFreeTile(tileX, tileY);
 		if( highestTire>tileY-5){
-			fire.body.y=highestTire*4-fire.height+1;
+			fire.body.y=highestTire*this.World.tileSize-fire.height+1;
 		}else{
-			fire.body.y=tileY*4-fire.height+1;
+			fire.body.y=tileY*this.World.tileSize-fire.height+1;
 		}
 		tileX=this.World.TileForWorld(fire.x);
 		thileY=this.World.TileForWorld(fire.y);
