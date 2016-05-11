@@ -21,7 +21,7 @@
 	var game=new Phaser.Game(800,600,Phaser.AUTO,'game',{update:onUpdate,create:onCreate,preload:onPreload});
 	function onCreate(){
 		
-
+	
 		dude1=game.add.sprite(0,0,'background');
 
 		 var charcterGroup=game.add.group();
@@ -51,6 +51,8 @@
 		dude1.animations.add('left',[0,1,2,3],10,true);
 		dude1.animations.add('right',[5,6,7,8],10,true);
 		dude2.body.colliderWorldBounds=true;
+		dude1.frame=0
+
 		
 
 		this.cursor=game.input.keyboard.createCursorKeys();
@@ -59,21 +61,16 @@
 			f.body.velocity.x=100;
 		},this);
 		z.onDown.add(function(){
-			var b=World.AddBazoka(dude1.x, dude1.y, 'bazoka',2)
+			var b=World.AddBazoka(dude1.x, dude1.y, 'bazoka',5)
+			// b.body.velocity.x=-100
+			b.angle=-90;
 			b.body.velocity.y=-100
-			b.angle-= 90;
-			b=World.AddBazoka(dude1.x, dude1.y, 'bazoka',20)
-			b.body.velocity.y=100
-			b.angle-= -90;
-			b=World.AddBazoka(dude1.x, dude1.y, 'bazoka',20)
-			b.body.velocity.x=+100
-			b.angle=0;
-			b=World.AddBazoka(dude1.x, dude1.y, 'bazoka',20)
-			b.body.velocity.x=-100
-			b.angle=90;
+			
 
 
 		})
+		// dude1.anchor.setTo(0.5);
+
 	}
 	function onPreload(){
 
@@ -82,6 +79,8 @@
 		game.load.spritesheet('dude','assets/dude.png',32,48)
 		game.load.spritesheet('fire','assets/Flame.png',16,16);
 		game.load.image('bazoka','assets/BazookaShell.png')
+		game.load.json('bazokaC','assets/bazoka.json')
+
 		
 		
 		
@@ -115,11 +114,15 @@
 		 if(this.cursor.left.isDown){
 			dude1.body.velocity.x=-50;
 			dude1.animations.play('left');
-
+			
+		
+			
 		}
 			 if(this.cursor.right.isDown){
+			 	
 			dude1.body.velocity.x=50;
 			dude1.animations.play('right');
+		
 		}
 		else if (!this.cursor.left.isDown&&
 			!this.cursor.right.isDown &&
@@ -127,8 +130,9 @@
 			!this.cursor.down.isDown
 			){
 			dude1.body.velocity.x=0;
+
 			dude1.animations.stop();
-			dude1.frame=4;
+			// dude1.frame=4;
 		}
 		
 

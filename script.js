@@ -12,6 +12,7 @@ function TWorld(game,tileSize){
 	this.d=null;
 	this.fireGroup=game.add.group();
 	this.BazokaGroup=game.add.group();
+	this.bazopkaPoints=game.cache.getJSON('bazokaC');
 	
 	
 }
@@ -211,9 +212,12 @@ TWorld.prototype.AddBazoka=function(x,y,key,r){
 }
 
 function PhysicsWorld(game,TWorld,charcters){
+
 	this.game=game;
 	this.World=TWorld;
-	
+
+	console.log(this.bazopkaPoints);
+
 	this.charcters=charcters;
 	
 	console.log('constructor');
@@ -227,7 +231,7 @@ PhysicsWorld.prototype.update=function(){
 	this.charcters.forEach(this.checkCharcterCollison);
 	this.charcters.forEach(function (charcter) {
 		// this.checkCharcterCollison(charcter);
-
+		
 		this.World.fireGroup.forEach(function(fire){
 			if(f(fire,charcter)){
 				console.log("it burns");
@@ -239,7 +243,7 @@ PhysicsWorld.prototype.update=function(){
 		
 	});
 	this.World.fireGroup.forEach(this.checkFireCollison);
-	this.World.BazokaGroup.forEach(this.BazokaVsPlatForm);
+	this.World.BazokaGroup.forEach(this.bazokaVsPlatform);
 
 }
 
@@ -427,6 +431,51 @@ function burn(x,y,pw,fire,TimerIndex){
 
 
 }
+PhysicsWorld.prototype.bazokaVsPlatform=function(bazoka){
+tileX=this.World.TileForWorld(bazoka.body.x)
+tileX1=this.World.TileForWorld(bazoka.body.x+bazoka.width)
+tileY=this.World.TileForWorld(bazoka.body.y)+1
+tileY1=this.World.TileForWorld(bazoka.body.y+bazoka.height)-1
+
+if(bazoka.body.x<=0||bazoka.body.x>=this.game.width||bazoka.body.y<=0||bazoka.body.y>=this.game.height){
+	
+			this.World.BazokaGroup.removeChild(bazoka)
+			bazoka.destroy()
+			console.log('removed')
+			return
+
+}
+this.World.colorAPixle(0, 0, 255, 255, 255)
+	// for(var i=tileX;i<tileX1;i++)
+	// 	this.World.colorAPixle(i, tileY, 255, 0, 0)
+
+	for(i=0;i<this.World.bazopkaPoints.length;i++){
+		x=bazoka.x+ this.World.bazopkaPoints[i][0]-12
+		y=bazoka.y+ this.World.bazopkaPoints[i][1]-6
+		
+		p=new Phaser.Point(x,y)
+		p=p.rotate(bazoka.x,bazoka.y,bazoka.angle,true)
+
+		yy=Math.floor(p.y)
+		xx=Math.floor(p.x)
+		var pointX=this.World.TileForWorld(xx)
+		var pointY=this.World.TileForWorld(yy)
+		 console.log(x+" "+xx+" "+y+" "+yy );
+		 this.World.colorAPixle(pointX, pointY, 255, 0, 0)
+		
+		if(!this.World.isWalkable(this.World.data[pointX][pointY])){
+			this.World.destoryCircle(bazoka.radious, pointX, tileY)
+			this.World.BazokaGroup.removeChild(bazoka)
+				bazoka.destroy()
+
+		}
+		this.World.colorAPixle(0, 0, 255, 0, 0)
+	}
+
+}
+
+
+	
 PhysicsWorld.prototype.BazokaVsPlatForm=function(bazoka){
 tileX=this.World.TileForWorld(bazoka.body.x)
 tileX1=this.World.TileForWorld(bazoka.body.x+bazoka.width)
