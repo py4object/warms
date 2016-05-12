@@ -1,7 +1,7 @@
 clearColor = '#EDEDED'//'#c3ffff'
 brownColor = '#aa7941'
 stoneColor1 = '#a0a0a0'
-
+var bff;
 
 
 function TWorld(game,tileSize){
@@ -13,12 +13,24 @@ function TWorld(game,tileSize){
 	this.fireGroup=game.add.group();
 	this.BazokaGroup=game.add.group();
 	this.bazopkaPoints=game.cache.getJSON('bazokaC');
-	
+	this.gernadePoints=game.cache.getJSON('gernade');
+	this.points=[this.bazopkaPoints,this.gernadePoints]
+	bff=game.add.sprite(45,20,'bff');
+	n=bff.animations.add('bff',[10,9,8,7,6,5,4,3,2,1,0],10,false);
+	bff.visible=false
+	n.onComplete.add(function(){
+		bff.visible=false
+		console.log("done");
+	})
+
+
 	
 }
 TWorld.prototype.getData=function(){
 	return this.data;
 }
+
+
 TWorld.prototype.loadImage=function(){
 	
 	console.log(this.tileSize);
@@ -228,9 +240,9 @@ TWorld.prototype.AddFire=function(x,y,key,time){
 
 }
 
-TWorld.prototype.AddBazoka=function(x,y,key,r){
+TWorld.prototype.AddBazoka=function(x,y,key,r,t){
 	
-	var bazoka=new Bazoka(x, y, key, this.game,r);
+	var bazoka=new Bazoka(x, y, key, this.game,r,t);
 	this.BazokaGroup.add(bazoka);
 	return bazoka;
 
@@ -265,7 +277,7 @@ PhysicsWorld.prototype.update=function(){
 
 		this.World.BazokaGroup.forEach(function(bazoka){
 			if(f(bazoka,charcter)){
-				charcter.hitB(0);
+				// charcter.hitB(0);
 				// x=bazoka.x+ this.World.bazopkaPoints[i][0]-12
 				// y=bazoka.y+ this.World.bazopkaPoints[i][1]-6
 				
@@ -504,10 +516,16 @@ if(bazoka.body.x<=0||bazoka.body.x>=this.game.width||bazoka.body.y<=0||bazoka.bo
 this.World.colorAPixle(0, 0, 255, 255, 255)
 	// for(var i=tileX;i<tileX1;i++)
 	// 	this.World.colorAPixle(i, tileY, 255, 0, 0)
-
-	for(i=0;i<this.World.bazopkaPoints.length;i++){
-		x=bazoka.x+ this.World.bazopkaPoints[i][0]-12
-		y=bazoka.y+ this.World.bazopkaPoints[i][1]-6
+	pp=this.World.points[bazoka.type]
+	console.log(pp);
+	for(i=0;i<this.pp.length;i++){
+		if(bazoka.type==0){
+			x=bazoka.x+ pp[i][0]-12
+			y=bazoka.y+ pp[i][1]-6
+		}else if(bazoka.type==1){
+			x=bazoka.x+ pp[i][0]-7
+			y=bazoka.y+ pp[i][1]-12
+		}
 		
 		p=new Phaser.Point(x,y)
 		p=p.rotate(bazoka.x,bazoka.y,bazoka.angle,true)
@@ -517,7 +535,7 @@ this.World.colorAPixle(0, 0, 255, 255, 255)
 		var pointX=this.World.TileForWorld(xx)
 		var pointY=this.World.TileForWorld(yy)
 		 // console.log(x+" "+xx+" "+y+" "+yy );
-		 // this.World.colorAPixle(pointX, pointY, 255, 0, 0)
+		  // this.World.colorAPixle(pointX, pointY, 255, 0, 0)
 		
 
 		if(!this.World.isWalkable(this.World.data[pointX][pointY])){
@@ -526,8 +544,13 @@ this.World.colorAPixle(0, 0, 255, 255, 255)
 
 			this.World.checkInRange(bazoka.radious, pointX, tileY,this.PWorld.charcters)
 			this.World.BazokaGroup.removeChild(bazoka)
-			game.camera.follow()
+			bff.visible=true;
+			bff.animations.play('bff')
+			bff.x=bazoka.x
+			bff.y=bazoka.y
+			// bff.visible=false
 				bazoka.destroy()
+				game.camera.follow()
 
 
 

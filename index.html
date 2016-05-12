@@ -75,9 +75,9 @@
 			f.body.velocity.x=100;
 		},this);
 		z.onDown.add(function(){
-			var b=World.AddBazoka(dude1.x, dude1.y-15, 'bazoka',10)
+			var b=World.AddBazoka(dude1.x-10, dude1.y-15, 'gernadeP',10,1)
 			// b.body.velocity.x=-100
-			b.angle=-90;
+			// b.angle=-90;
 			b.body.velocity.y=-100
 			
 		})
@@ -90,11 +90,13 @@
 		game.load.image('background','/assets/background.jpg');
 		game.load.spritesheet('dude','assets/dude.png',32,48)
 		game.load.spritesheet('fire','assets/Flame.png',16,16);
+		game.load.spritesheet('bff','assets/bff.png',50,31)
 		game.load.image('bazoka','assets/BazookaShell.png')
 		game.load.json('bazokaC','assets/bazoka.json')
+		game.load.json('gernade','assets/grenade.json')
+		game.load.image('gernadeP','assets/grenade.png')
 
-		
-		
+
 		
 	}
 
