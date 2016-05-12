@@ -25,6 +25,7 @@ TWorld.prototype.loadImage=function(){
 	
 	this.init();
 	var pixelData=this.canvas.getContext('2d').getImageData(0,0,this.img.width,this.img.height).data;
+	console.log(this.img.width+" "+this.img.height);
 	for (var x = 0; x< this.img.width; x++) {
 		for(var y =0;y<this.img.height;y++){
 			var red = pixelData[((this.img.width * y) + x) * 4]
@@ -54,7 +55,6 @@ TWorld.prototype.init=function(){
 
 	this.land = this.game.add.bitmapData(this.game.width, this.game.height);
 	this.game.add.sprite(0,0,this.land);
-    
 	this.img = game.cache.getImage('land');
     this.canvas = document.createElement('canvas');
     this.canvas.getContext('2d').drawImage(this.img, 0, 0, this.img.width, this.img.height);
@@ -177,6 +177,30 @@ TWorld.prototype.destoryCircle=function(r,tileX,tileY){
 	}
 	this.render();
 } 
+TWorld.prototype.checkInRange=function(r,tileX,tileY){
+	for(var x=-r;x<r;x++){
+		for(var y=-r;y<r;y++){
+			var d=x*x +y*y;
+			if(d<r*r){
+				var darwTileX=Phaser.Math.clamp(tileX+x,0,this.width-1);
+				var darwTileY=Phaser.Math.clamp(tileY+y,0,this.height-1);
+				
+				this.charcters.forEach(function(charcter){
+					var tileX = this.World.TileForWorld(charcter.x +(charcter.width/2))
+				    tileX = Phaser.Math.clamp(tileX, 0, this.World.width-1)
+				    var tileY = this.World.TileForWorld(charcter.body.y + charcter.height)
+				    var tileTopY=this.World.TileForWorld(charcter.body.y);
+				    tileY = Phaser.Math.clamp(tileY, 0, this.World.height-1);
+				    if(tileX==darwTileX &&darwTileY==tileY){
+				    	charcter.hitB(Math.abs(tileX-darwTileX)+Math.abs(drawTileY-darwTileY))
+				    }
+
+				})
+			}
+		}
+	}
+
+}
 TWorld.prototype.destroyOneTile=function(tileX,tileY){
 
 	this.futureData[tileX][tileY]=clearColor;
@@ -184,7 +208,7 @@ TWorld.prototype.destroyOneTile=function(tileX,tileY){
 	this.render();
 
 }
-
+	
 TWorld.prototype.destroySquare=function(tileX,tileY,width,height){
 	for (var i = tileY; i < tileY+height; i++) {
 		for (var j =tileX;j<tileX+width;j++){
@@ -244,6 +268,16 @@ PhysicsWorld.prototype.update=function(){
 	});
 	this.World.fireGroup.forEach(this.checkFireCollison);
 	this.World.BazokaGroup.forEach(this.bazokaVsPlatform);
+	this.charcters.forEach(function (charcter) {
+		
+
+		var tileX = this.World.TileForWorld(charcter.x )
+    	// console.log(tileX+" "+ charcter.x);
+    	var tileY = this.World.TileForWorld(charcter.body.y )
+    	// console.log(tileX+" "+ charcter.x+" "+tileY+" " +charcter.y);
+    	this.World.colorAPixle(tileX,tileY,0,0,255);
+		
+		})
 
 }
 
@@ -363,7 +397,7 @@ PhysicsWorld.prototype.checkCharcterCollison=function(charcter){
 	else if(charcter.body.velocity.y>0){
 		charcter.body.acceleration.y=0;
 		charcter.body.velocity.y=0;
-		console.log(this.tileSize);
+		// console.log(this.tileSize);
 		
 		
 		var highestTire=this.World.highestNonFreeTile(tileX, tileY);
@@ -460,13 +494,19 @@ this.World.colorAPixle(0, 0, 255, 255, 255)
 		xx=Math.floor(p.x)
 		var pointX=this.World.TileForWorld(xx)
 		var pointY=this.World.TileForWorld(yy)
-		 console.log(x+" "+xx+" "+y+" "+yy );
+		 // console.log(x+" "+xx+" "+y+" "+yy );
 		 this.World.colorAPixle(pointX, pointY, 255, 0, 0)
 		
+
 		if(!this.World.isWalkable(this.World.data[pointX][pointY])){
+
 			this.World.destoryCircle(bazoka.radious, pointX, tileY)
+
+
 			this.World.BazokaGroup.removeChild(bazoka)
 				bazoka.destroy()
+
+
 
 		}
 		this.World.colorAPixle(0, 0, 255, 0, 0)

@@ -51,6 +51,9 @@
 		dude1.animations.add('left',[0,1,2,3],10,true);
 		dude1.animations.add('right',[5,6,7,8],10,true);
 		dude2.body.colliderWorldBounds=true;
+		dude2.hitB=function(i){
+			console.log('fucked by '+i);
+		}
 		dude1.frame=0
 
 		
@@ -66,10 +69,8 @@
 			b.angle=-90;
 			b.body.velocity.y=-100
 			
-
-
 		})
-		// dude1.anchor.setTo(0.5);
+	  // dude1.anchor.setTo(0.5,0.5);
 
 	}
 	function onPreload(){
