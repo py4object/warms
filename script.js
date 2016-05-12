@@ -495,7 +495,7 @@ this.World.colorAPixle(0, 0, 255, 255, 255)
 		var pointX=this.World.TileForWorld(xx)
 		var pointY=this.World.TileForWorld(yy)
 		 // console.log(x+" "+xx+" "+y+" "+yy );
-		 this.World.colorAPixle(pointX, pointY, 255, 0, 0)
+		 // this.World.colorAPixle(pointX, pointY, 255, 0, 0)
 		
 
 		if(!this.World.isWalkable(this.World.data[pointX][pointY])){
