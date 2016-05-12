@@ -177,7 +177,8 @@ TWorld.prototype.destoryCircle=function(r,tileX,tileY){
 	}
 	this.render();
 } 
-TWorld.prototype.checkInRange=function(r,tileX,tileY){
+TWorld.prototype.checkInRange=function(r,tileX,tileY,charcters){
+	var xx=tileX,yy=tileY
 	for(var x=-r;x<r;x++){
 		for(var y=-r;y<r;y++){
 			var d=x*x +y*y;
@@ -185,14 +186,14 @@ TWorld.prototype.checkInRange=function(r,tileX,tileY){
 				var darwTileX=Phaser.Math.clamp(tileX+x,0,this.width-1);
 				var darwTileY=Phaser.Math.clamp(tileY+y,0,this.height-1);
 				
-				this.charcters.forEach(function(charcter){
-					var tileX = this.World.TileForWorld(charcter.x +(charcter.width/2))
-				    tileX = Phaser.Math.clamp(tileX, 0, this.World.width-1)
-				    var tileY = this.World.TileForWorld(charcter.body.y + charcter.height)
-				    var tileTopY=this.World.TileForWorld(charcter.body.y);
-				    tileY = Phaser.Math.clamp(tileY, 0, this.World.height-1);
+				charcters.forEach(function(fire){
+				var tileX = this.World.TileForWorld(fire.x +(fire.width/2))
+		    	tileX = Phaser.Math.clamp(tileX, 0, this.World.width-1)
+			    var tileY = this.World.TileForWorld(fire.body.y + fire.height)
+			    var tileTopY=this.World.TileForWorld(fire.body.y);
+			    tileY = Phaser.Math.clamp(tileY, 0, this.World.height-1);
 				    if(tileX==darwTileX &&darwTileY==tileY){
-				    	charcter.hitB(Math.abs(tileX-darwTileX)+Math.abs(drawTileY-darwTileY))
+				    	fire.hitB(Math.abs(xx-darwTileX)+Math.abs(yy-darwTileY))
 				    }
 
 				})
@@ -258,7 +259,27 @@ PhysicsWorld.prototype.update=function(){
 		
 		this.World.fireGroup.forEach(function(fire){
 			if(f(fire,charcter)){
-				console.log("it burns");
+				charcter.burn();
+			}
+		})
+
+		this.World.BazokaGroup.forEach(function(bazoka){
+			if(f(bazoka,charcter)){
+				charcter.hitB(0);
+				// x=bazoka.x+ this.World.bazopkaPoints[i][0]-12
+				// y=bazoka.y+ this.World.bazopkaPoints[i][1]-6
+				
+				// p=new Phaser.Point(x,y)
+				// p=p.rotate(bazoka.x,bazoka.y,bazoka.angle,true)
+
+				// yy=Math.floor(p.y)
+				// xx=Math.floor(p.x)
+				// var pointX=this.World.TileForWorld(xx)
+				// var pointY=this.World.TileForWorld(yy)
+				// this.World.checkInRange(bazoka.radious, pointX, tileY,this.PWorld.charcters)
+				this.World.BazokaGroup.removeChild(bazoka)
+				bazoka.destroy()
+				game.camera.follow()
 			}
 		})
 		// this.checkCharcterCollison(charcter);
@@ -266,6 +287,7 @@ PhysicsWorld.prototype.update=function(){
 
 		
 	});
+
 	this.World.fireGroup.forEach(this.checkFireCollison);
 	this.World.BazokaGroup.forEach(this.bazokaVsPlatform);
 	this.charcters.forEach(function (charcter) {
@@ -502,8 +524,9 @@ this.World.colorAPixle(0, 0, 255, 255, 255)
 
 			this.World.destoryCircle(bazoka.radious, pointX, tileY)
 
-
+			this.World.checkInRange(bazoka.radious, pointX, tileY,this.PWorld.charcters)
 			this.World.BazokaGroup.removeChild(bazoka)
+			game.camera.follow()
 				bazoka.destroy()
 
 
@@ -565,6 +588,7 @@ if(bazoka.body.x<=0||bazoka.body.x>=this.game.width||bazoka.body.y<=0||bazoka.bo
 					this.World.destoryCircle(bazoka.radious, tileX1, i)
 					this.World.BazokaGroup.removeChild(bazoka)
 					bazoka.destroy()
+					game.camera.follow()
 					return
 				}
 		}
