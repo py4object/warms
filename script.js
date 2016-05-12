@@ -189,7 +189,7 @@ TWorld.prototype.destoryCircle=function(r,tileX,tileY){
 	}
 	this.render();
 } 
-TWorld.prototype.checkInRange=function(r,tileX,tileY,charcters){
+TWorld.prototype.checkInRange=function(r,tileX,tileY,charcters,type){
 	var xx=tileX,yy=tileY
 	for(var x=-r;x<r;x++){
 		for(var y=-r;y<r;y++){
@@ -205,7 +205,7 @@ TWorld.prototype.checkInRange=function(r,tileX,tileY,charcters){
 			    var tileTopY=this.World.TileForWorld(fire.body.y);
 			    tileY = Phaser.Math.clamp(tileY, 0, this.World.height-1);
 				    if(tileX==darwTileX &&darwTileY==tileY){
-				    	fire.hitB(bazoka.type)
+				    	fire.hitB(type)
 				    }
 
 				})
@@ -239,6 +239,27 @@ TWorld.prototype.AddFire=function(x,y,key,time){
 	return fire;
 
 }
+TWorld.prototype.AddDyinamte=function(x,y){
+	d=game.add.sprite(x,y,'dn')
+	gf=[]
+	for(var i=0;i<127;i++){
+		gf[i]=i;
+	}
+	n=d.animations.add('dn',gf,40,false);
+	d.animations.play('dn')
+	n.onComplete.add(function(){
+	xx=this.World.TileForWorld(x)
+	yy=this.World.TileForWorld(y)
+
+	this.World.checkInRange(30, xx, yy,this.PWorld.charcters,4)
+	this.World.destoryCircle(30, xx, yy)
+
+		console.log("kaboooom");
+		d.destroy()
+	})
+
+}
+
 
 TWorld.prototype.AddBazoka=function(x,y,key,r,t){
 	
@@ -519,7 +540,7 @@ this.World.colorAPixle(0, 0, 255, 255, 255)
 	// for(var i=tileX;i<tileX1;i++)
 	// 	this.World.colorAPixle(i, tileY, 255, 0, 0)
 	pp=this.World.points[bazoka.type]
-	console.log(pp);
+	// console.log(pp);
 	for(i=0;i<this.pp.length;i++){
 		if(bazoka.type==0){
 			x=bazoka.x+ pp[i][0]-12
@@ -544,7 +565,7 @@ this.World.colorAPixle(0, 0, 255, 255, 255)
 
 			this.World.destoryCircle(bazoka.radious, pointX, tileY)
 
-			this.World.checkInRange(bazoka.radious, pointX, tileY,this.PWorld.charcters)
+			this.World.checkInRange(bazoka.radious, pointX, tileY,this.PWorld.charcters,bazoka.type)
 			this.World.BazokaGroup.removeChild(bazoka)
 			if(bazoka.type!=0){
 				bff.visible=true;
