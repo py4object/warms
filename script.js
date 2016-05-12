@@ -205,7 +205,7 @@ TWorld.prototype.checkInRange=function(r,tileX,tileY,charcters){
 			    var tileTopY=this.World.TileForWorld(fire.body.y);
 			    tileY = Phaser.Math.clamp(tileY, 0, this.World.height-1);
 				    if(tileX==darwTileX &&darwTileY==tileY){
-				    	fire.hitB(Math.abs(xx-darwTileX)+Math.abs(yy-darwTileY))
+				    	fire.hitB(bazoka.type)
 				    }
 
 				})
@@ -277,21 +277,23 @@ PhysicsWorld.prototype.update=function(){
 
 		this.World.BazokaGroup.forEach(function(bazoka){
 			if(f(bazoka,charcter)){
-				// charcter.hitB(0);
-				// x=bazoka.x+ this.World.bazopkaPoints[i][0]-12
-				// y=bazoka.y+ this.World.bazopkaPoints[i][1]-6
-				
-				// p=new Phaser.Point(x,y)
-				// p=p.rotate(bazoka.x,bazoka.y,bazoka.angle,true)
+				charcter.hitB(bazoka.type);
+				var tileX = this.World.TileForWorld(bazoka.x +(bazoka.width/2))
+			    tileX = Phaser.Math.clamp(tileX, 0, this.World.width-1)
+			    var tileY = this.World.TileForWorld(bazoka.body.y + bazoka.height)
+			    
+			    tileY = Phaser.Math.clamp(tileY, 0, this.World.height-1);
 
-				// yy=Math.floor(p.y)
-				// xx=Math.floor(p.x)
-				// var pointX=this.World.TileForWorld(xx)
-				// var pointY=this.World.TileForWorld(yy)
-				// this.World.checkInRange(bazoka.radious, pointX, tileY,this.PWorld.charcters)
+   				this.World.destoryCircle(bazoka.radious, tileX, tileY)
 				this.World.BazokaGroup.removeChild(bazoka)
 				bazoka.destroy()
 				game.camera.follow()
+				if(bazoka.type!=0){
+				bff.visible=true;
+				bff.animations.play('bff')
+				bff.x=bazoka.x
+				bff.y=bazoka.y
+				}
 			}
 		})
 		// this.checkCharcterCollison(charcter);
@@ -536,7 +538,7 @@ this.World.colorAPixle(0, 0, 255, 255, 255)
 		var pointY=this.World.TileForWorld(yy)
 		 // console.log(x+" "+xx+" "+y+" "+yy );
 		  // this.World.colorAPixle(pointX, pointY, 255, 0, 0)
-		
+		try{
 
 		if(!this.World.isWalkable(this.World.data[pointX][pointY])){
 
@@ -544,10 +546,12 @@ this.World.colorAPixle(0, 0, 255, 255, 255)
 
 			this.World.checkInRange(bazoka.radious, pointX, tileY,this.PWorld.charcters)
 			this.World.BazokaGroup.removeChild(bazoka)
-			bff.visible=true;
-			bff.animations.play('bff')
-			bff.x=bazoka.x
-			bff.y=bazoka.y
+			if(bazoka.type!=0){
+				bff.visible=true;
+				bff.animations.play('bff')
+				bff.x=bazoka.x
+				bff.y=bazoka.y
+		}
 			// bff.visible=false
 				bazoka.destroy()
 				game.camera.follow()
@@ -555,7 +559,9 @@ this.World.colorAPixle(0, 0, 255, 255, 255)
 
 
 		}
+	}catch(e){}
 		this.World.colorAPixle(0, 0, 255, 0, 0)
+	
 	}
 
 }
